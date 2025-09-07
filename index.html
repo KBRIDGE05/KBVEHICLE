@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#f6f7f9" />
+<title>KBridge · 화물차량 제원 (라이트) – v5.12a · 2개씩 나열</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css" />
+<style>
+  /* ===== Design Tokens ===== */
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --ink: #0f172a;
+    --muted: #475569;
+    --accent: #0ea5e9;
+    --accent-deep: #075985;
+    --chip: #eaf6ff;
+    --border: #e5e7eb;
+    --border-strong:#d6dae1;
+    --control-h: 56px;
+    --r-pill: 9999px;
+    --spec-k: clamp(110px, 18vw, 140px);
+    --radius: 16px;
+    --shadow: 0 4px 14px rgba(0,0,0,.06);
+    --shadow-soft: 0 2px 12px rgba(0,0,0,.04);
+  }
+
+  /* ===== Base / Reset ===== */
+  * { box-sizing: border-box; }
+  html, body {
+    margin:0; padding:0; background:var(--bg); color:var(--ink);
+    font-family: "Pretendard Variable", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body { font-size: clamp(15px, 1.8vw, 16px); line-height: 1.55; }
+  .wrap { max-width: 1100px; margin: 22px auto 96px; padding: 0 16px; }
+  h1 { font-size: clamp(22px, 2.6vw, 28px); font-weight: 900; margin: 0 0 12px 0; letter-spacing:-0.3px; line-height:1.2; }
+
+  /* ===== Toolbar ===== */
+  .toolbar {
+    position: sticky; top: 8px; z-index: 30;
+    display:grid; grid-template-columns: 1fr; gap:10px; align-items:center;
+    background:var(--card); border:1px solid var(--border);
+    padding:12px; border-radius:var(--radius); box-shadow: var(--shadow-soft);
+    backdrop-filter: saturate(120%) blur(2px);
+  }
+  @media (min-width: 1024px){
+    .toolbar{ grid-template-columns: 240px 1fr 360px; gap:12px; }
+  }
+
+  .select { position:relative; display:flex; align-items:center; gap:10px; padding:0 14px; height:var(--control-h);
+            border:2px solid #cfe9ff; border-radius:var(--r-pill); background:linear-gradient(#ffffff,#fafdff);
+            width:100%; max-width:240px; box-shadow: 0 3px 12px rgba(14,165,233,.08); }
+  @media (max-width:1023.98px){ .select{ max-width:none; width:100%; } }
+  .select:focus-within{ box-shadow: 0 0 0 4px rgba(14,165,233,.20), 0 3px 12px rgba(14,165,233,.10); border-color:#93d1ff; }
+  .select .label { display:inline-flex; align-items:center; gap:8px; font-weight:900; color:var(--accent-deep);
+    background:#e9f6ff; border:1px solid #cfe9ff; padding:6px 12px; border-radius:var(--r-pill); font-size:12px; white-space:nowrap; }
+  .select .label::before{ content:""; width:14px; height:14px; display:inline-block; background: conic-gradient(from 180deg at 50% 50%, #6ec7ff, #0ea5e9 60%, #6ec7ff);
+    border-radius:50%; box-shadow: inset 0 0 0 2px #d7efff; }
+  .select select { border:0; background:transparent; font-weight:850; font-variation-settings: "wght" 860; font-size:17px; color:#0a2a44; appearance:none; padding-right:30px; letter-spacing:-0.3px; min-width:0; flex:1; }
+  .select.empty select { color:#40627a; font-variation-settings: "wght" 780; }
+  .select::after{ content:""; position:absolute; right:12px; top:50%; transform:translateY(-30%); width:0; height:0; pointer-events:none;
+    border-left:7px solid transparent; border-right:7px solid transparent; border-top:9px solid #0b2239; opacity:.6; filter: drop-shadow(0 1px 0 rgba(0,0,0,.15)); }
+  .select.empty { background:#eef8ff; border-color:#bfe6ff; }
+
+  .search { position:relative; }
+  .search input {
+    width:100%; height:var(--control-h); border:1.5px solid var(--border-strong); border-radius:var(--r-pill);
+    padding:0 18px; background:#fff; font-size:16px; line-height:1; outline: none;
+  }
+  .search input:focus { border-color:#b3c1d1; box-shadow: 0 0 0 4px rgba(14,165,233,.14); }
+
+  .tabs {
+    display:inline-flex; gap:8px; align-items:center; justify-content:flex-start; padding:6px; background:#f1f7ff;
+    border:1px solid #d6eaff; border-radius:18px; box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 3px 10px rgba(14,165,233,.08);
+    overflow-x:auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin;
+  }
+  .tabs .tab {
+    min-width:160px; height: calc(var(--control-h) - 12px); padding:0 18px; font-weight:900; font-size:16px; border:1px solid transparent;
+    border-radius:15px; background:transparent; text-align:center; cursor:pointer;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease, color .12s ease, border-color .12s ease;
+    user-select:none; -webkit-tap-highlight-color: transparent;
+  }
+  .tabs .tab:hover { transform: translateY(-1px); }
+  .tabs .tab:focus-visible{ outline:3px solid rgba(14,165,233,.35); outline-offset:2px; }
+  .tabs .tab.active { background:#ffffff; color:#075985; border-color:#bfe0ff; box-shadow: 0 6px 14px rgba(14,165,233,.18); }
+  .tabs .tab::before{ content:"📐"; margin-right:6px; font-size:15px; opacity:.9; }
+
+  small.hint { color:var(--muted); display:block; margin-top:8px; }
+  .badges { display:flex; gap:8px; flex-wrap:wrap; padding-top:8px; }
+  .badge {
+    background:var(--chip); border:1px solid #c7e6ff; color:#0b5ea8; font-weight:700; padding:8px 12px; border-radius:var(--r-pill); cursor:pointer;
+    transition: transform .1s ease, box-shadow .1s ease, background .1s ease, border-color .1s ease;
+  }
+  .badge:hover { transform: translateY(-1px); }
+  .badge.active { background:#d6ecff; border-color:#bfe0ff; }
+
+  /* ===== Grid & Card ===== */
+  .grid {
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2개씩(2열) 고정 */
+    gap:14px; margin-top:16px;
+  }
+  @media (max-width: 720px){
+    .grid{ grid-template-columns: 1fr; } /* 작은 화면은 1열로 가독성 유지 */
+  }
+  .card {
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    overflow:hidden; box-shadow: var(--shadow);
+    content-visibility: auto; contain-intrinsic-size: 320px 560px;
+  }
+  .card header {
+    display:flex; align-items:center; padding:10px 12px; gap:8px; border-bottom:1px dashed var(--border); background:linear-gradient(#fff, #fafafa);
+  }
+  .card .title { font-weight:900; letter-spacing:-0.2px; font-size: clamp(15px, 2vw, 16px); }
+  .card .alias { color:var(--muted); font-weight:700; margin-left:auto; font-size: 13px; }
+
+  .thumb { display:flex; align-items:center; justify-content:center; background:#fff; border-bottom:1px solid var(--border); height:150px; }
+  .thumb img { width:auto; height:120px; display:block; object-fit:contain; margin:auto; }
+
+  /* ===== Vehicle Specs: 데스크탑 2쌍(4열), 모바일 1쌍(2열) ===== */
+  .specs {
+    display:grid;
+    grid-template-columns: var(--spec-k) 1fr var(--spec-k) 1fr;
+    gap:10px 14px;
+    padding:12px;
+    font-size: clamp(14px, 1.8vw, 15px);
+    align-items:start;
+  }
+  @media (max-width: 720px){
+    .specs{ grid-template-columns: var(--spec-k) 1fr; }
+  }
+  .specs .k {
+    color:var(--muted);
+    font-weight:700;
+    line-height:1.2;
+    white-space:normal;
+    word-break:keep-all;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .specs .nowrap { white-space:nowrap; }
+  .specs .v {
+    font-weight:850;
+    color:#0b2239;
+    word-break:break-word;
+  }
+  .notes { border-top:1px dashed var(--border); color:var(--muted); font-size:12px; padding:10px 12px 14px; }
+  .panel.no-results { padding:20px; text-align:center; border:1px dashed var(--border); border-radius:12px; background:#fff; color:var(--muted); }
+  footer { margin-top:10px; color:var(--muted); font-size:12px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .tabs .tab, .badge { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>화물차량 제원 (라이트)</h1>
+  <div class="toolbar" role="region" aria-label="필터 및 검색">
+    <div class="select" title="톤수">
+      <span class="label">구분</span>
+      <select id="tonFilter" aria-label="톤수 선택">
+        <option value="">전체 톤수</option>
+        <option>1톤</option><option>1.4톤</option><option>2.5톤</option>
+        <option>3.5톤</option><option>5톤</option><option>11톤</option>
+        <option>18톤</option><option>22톤</option><option>24톤</option><option>25톤</option>
+      </select>
+    </div>
+    <div class="search">
+      <input id="q" placeholder="예: 윙바디, 냉동, 파렛트 3개, 길이 4.2m" inputmode="search" aria-label="차량 제원 검색" />
+    </div>
+    <div id="palletToggle" class="tabs" role="tablist" aria-label="팔레트 규격 선택">
+      <button class="tab active" data-w="1100" data-l="1100" aria-selected="true" role="tab">1100×1100</button>
+      <button class="tab" data-w="1100" data-l="1000" aria-selected="false" role="tab">1100×1000</button>
+    </div>
+  </div>
+  <small class="hint">※ 수치는 참고용입니다. 실제 제원은 차종·개조·연식에 따라 달라질 수 있습니다.</small>
+  <div class="badges" id="typeBadges"></div>
+  <div id="grid" class="grid"></div>
+  <footer>© KBridge · 데이터 출처: 모워더케이알 화물차량 제원 조회.</footer>
+</div>
+
+<script>
+(()=>{
+  /* ===== Constants / Data (원본 기능 유지) ===== */
+  const TYPE_ICONS = {"카고":"📦","리프트":"🛠️","탑차":"🚚","윙바디":"🪽","호루":"⛺","냉동탑":"🧊","츄레라":"🚛"};
+  const BODY_TYPES = ["카고","탑차","윙바디","리프트","호루","냉동탑","츄레라"];
+
+  const IMG = (n)=>`https://www.forwarder.kr/img/cargo/cargo${String(n).padStart(2,'0')}.png?ver=3`;
+  const IMAGE_MAP = {
+    "1톤|1톤카고": IMG(1),
+    "1톤|1톤초장축": IMG(2),
+    "1톤|1톤리프트": IMG(3),
+    "1톤|1톤탑차": IMG(4),
+    "1톤|1톤윙바디": IMG(5),
+    "1톤|1톤호루차": IMG(6),
+    "1톤|1톤냉동탑차": IMG(7),
+    "1.4톤|1.4톤카고": IMG(8),
+    "1.4톤|1.4톤초장축": IMG(9),
+    "1.4톤|1.4톤리프트": IMG(10),
+    "1.4톤|1.4톤탑차": IMG(11),
+    "1.4톤|1.4톤윙바디": IMG(12),
+    "1.4톤|1.4톤냉동탑차": IMG(13),
+    "2.5톤|2.5톤카고": IMG(14),
+    "2.5톤|2.5톤리프트": IMG(15),
+    "2.5톤|2.5톤탑차": IMG(16),
+    "2.5톤|2.5톤윙바디": IMG(17),
+    "2.5톤|2.5톤냉동탑차": IMG(18),
+    "3.5톤|3.5톤카고": IMG(19),
+    "3.5톤|3.5톤초장축": IMG(20),
+    "3.5톤|3.5톤리프트": IMG(21),
+    "3.5톤|3.5톤탑차": IMG(22),
+    "3.5톤|3.5톤윙바디": IMG(23),
+    "3.5톤|3.5톤냉동탑차": IMG(24),
+    "5톤|5톤카고": IMG(25),
+    "5톤|5톤플러스카": IMG(26),
+    "5톤|5톤플러스축차": IMG(27),
+    "5톤|5톤리프트": IMG(28),
+    "5톤|5톤탑차": IMG(29),
+    "5톤|5톤윙바디": IMG(30),
+    "5톤|5톤플러스윙": IMG(31),
+    "5톤|5톤플러스축윙": IMG(32),
+    "5톤|5톤냉동탑차": IMG(33),
+    "11톤|11톤카고": IMG(34),
+    "11톤|11톤윙바디": IMG(35),
+    "18톤|18톤카고": IMG(36),
+    "18톤|18톤윙바디": IMG(37),
+    "22톤|22톤카고": IMG(38),
+    "25톤|25톤카고": IMG(39),
+    "25톤|25톤윙바디": IMG(40),
+    "24톤|24톤츄레라": IMG(41),
+    "24톤|24톤로우베드": IMG(42),
+    "24톤|24톤슬라이드": IMG(43)
+  };
+
+  const TRUCK_SPECS = [
+    { ton:"1톤", name:"1톤카고", alias:"용달차", type:"카고", len:2.8, width:1.6, topH:0, floorH:0.7, payload:"1~1.5톤", vol:6, vehH:"2.2 m" },
+    { ton:"1톤", name:"1톤초장축", alias:"용달차", type:"카고", len:3.0, width:1.6, topH:0, floorH:0.7, payload:"1~1.5톤", vol:7, vehH:"2.2 m" },
+    { ton:"1톤", name:"1톤리프트", alias:"용달리프트", type:"리프트", len:2.8, width:1.6, topH:0, floorH:0.7, payload:"1~1.5톤", vol:6, vehH:"2.2 m" },
+    { ton:"1톤", name:"1톤탑차", alias:"용달탑차", type:"탑차", len:2.8, width:1.6, topH:"1.5~1.8", floorH:0.7, payload:"1~1.5톤", vol:6, vehH:"2.2~2.5 m" },
+    { ton:"1톤", name:"1톤윙바디", alias:"용달윙바디", type:"윙바디", len:2.8, width:1.6, topH:"1.8~2.0", floorH:0.7, payload:"1~1.5톤", vol:6, vehH:"2.5~2.7 m" },
+    { ton:"1톤", name:"1톤호루차", alias:"용달호루차", type:"호루", len:2.8, width:1.6, topH:"1.8~2.3", floorH:0.7, payload:"1~1.5톤", vol:6, vehH:"2.5~3.0 m" },
+    { ton:"1톤", name:"1톤냉동탑차", alias:"용달냉탑", type:"냉동탑", len:2.8, width:1.6, topH:"1.5~1.8", floorH:0.7, payload:"1~1.5톤", vol:5, vehH:"2.2~2.5 m" },
+
+    { ton:"1.4톤", name:"1.4톤카고", alias:"쩜사", type:"카고", len:3.1, width:1.6, topH:0, floorH:0.8, payload:"1.5톤 미만", vol:8, vehH:"2.3 m" },
+    { ton:"1.4톤", name:"1.4톤초장축", alias:"쩜사", type:"카고", len:3.4, width:1.6, topH:0, floorH:0.8, payload:"1.5톤 미만", vol:9, vehH:"2.3 m" },
+    { ton:"1.4톤", name:"1.4톤리프트", alias:"쩜사리프트", type:"리프트", len:3.1, width:1.6, topH:0, floorH:0.8, payload:"1.5톤 미만", vol:8, vehH:"2.3 m" },
+    { ton:"1.4톤", name:"1.4톤탑차", alias:"쩜사탑차", type:"탑차", len:3.1, width:1.6, topH:"1.5~2.0", floorH:0.8, payload:"1.5톤 미만", vol:7, vehH:"2.3~2.8 m" },
+    { ton:"1.4톤", name:"1.4톤윙바디", alias:"쩜사윙바디", type:"윙바디", len:3.1, width:1.6, topH:"1.8~2.0", floorH:0.8, payload:"1.5톤 미만", vol:8, vehH:"2.6~2.8 m" },
+    { ton:"1.4톤", name:"1.4톤냉동탑차", alias:"쩜사냉탑", type:"냉동탑", len:3.1, width:1.6, topH:"1.5~1.8", floorH:0.8, payload:"1.5톤 미만", vol:7, vehH:"2.3~2.6 m" },
+
+    { ton:"2.5톤", name:"2.5톤카고", alias:"2.5톤", type:"카고", len:4.2, width:1.8, topH:0, floorH:1.0, payload:"4톤", vol:14, vehH:"2.6 m" },
+    { ton:"2.5톤", name:"2.5톤리프트", alias:"2.5톤리프트", type:"리프트", len:4.2, width:1.8, topH:0, floorH:1.0, payload:"4톤", vol:14, vehH:"2.6 m" },
+    { ton:"2.5톤", name:"2.5톤탑차", alias:"2.5톤탑차", type:"탑차", len:4.2, width:1.8, topH:"1.8~2.2", floorH:1.0, payload:"3.5톤", vol:14, vehH:"2.8~3.2 m" },
+    { ton:"2.5톤", name:"2.5톤윙바디", alias:"2.5톤윙바디", type:"윙바디", len:4.2, width:1.8, topH:"2.0~2.3", floorH:1.0, payload:"3.5톤", vol:14, vehH:"3.0~3.3 m" },
+    { ton:"2.5톤", name:"2.5톤냉동탑차", alias:"2.5톤냉탑", type:"냉동탑", len:4.2, width:1.8, topH:"1.8~2.2", floorH:1.0, payload:"3.5톤", vol:13, vehH:"2.8~3.2 m" },
+
+    { ton:"3.5톤", name:"3.5톤카고", alias:"3.5톤", type:"카고", len:4.4, width:2.0, topH:0, floorH:1.05, payload:"6톤", vol:18, vehH:"2.7 m" },
+    { ton:"3.5톤", name:"3.5톤초장축", alias:"3.5톤장축", type:"카고", len:4.8, width:2.0, topH:0, floorH:1.05, payload:"6톤", vol:20, vehH:"2.7 m" },
+    { ton:"3.5톤", name:"3.5톤리프트", alias:"3.5톤리프트", type:"리프트", len:4.4, width:2.0, topH:0, floorH:1.05, payload:"6톤", vol:18, vehH:"2.7 m" },
+    { ton:"3.5톤", name:"3.5톤탑차", alias:"3.5톤탑차", type:"탑차", len:4.4, width:2.0, topH:"2.0~2.3", floorH:1.05, payload:"5톤", vol:18, vehH:"3.0~3.3 m" },
+    { ton:"3.5톤", name:"3.5톤윙바디", alias:"3.5톤윙바디", type:"윙바디", len:4.4, width:2.0, topH:"2.0~2.3", floorH:1.05, payload:"5톤", vol:18, vehH:"3.0~3.3 m" },
+    { ton:"3.5톤", name:"3.5톤냉동탑차", alias:"3.5톤냉탑", type:"냉동탑", len:4.4, width:2.0, topH:"1.8~2.3", floorH:1.05, payload:"5톤", vol:17, vehH:"2.9~3.3 m" },
+
+    { ton:"5톤", name:"5톤카고", alias:"5톤카고", type:"카고", len:6.2, width:2.3, topH:0, floorH:"1.1~1.2", payload:"6~7톤", vol:26, vehH:"3.0~3.2 m" },
+    { ton:"5톤", name:"5톤플러스카", alias:"5톤플러스", type:"카고", len:7.3, width:2.3, topH:0, floorH:"1.1~1.2", payload:"6~7.5톤", vol:33, vehH:"3.0~3.2 m" },
+    { ton:"5톤", name:"5톤플러스축차", alias:"5톤플러스축", type:"카고", len:7.3, width:2.3, topH:0, floorH:"1.1~1.2", payload:"10~15톤", vol:33, vehH:"3.0~3.2 m" },
+    { ton:"5톤", name:"5톤리프트", alias:"5톤리프트", type:"리프트", len:6.2, width:2.3, topH:0, floorH:"1.1~1.2", payload:"6~7톤", vol:26, vehH:"3.0~3.2 m" },
+    { ton:"5톤", name:"5톤탑차", alias:"5톤탑차", type:"탑차", len:6.2, width:2.3, topH:"2.2~2.5", floorH:"1.1~1.2", payload:"6톤", vol:26, vehH:"3.3~3.7 m" },
+    { ton:"5톤", name:"5톤윙바디", alias:"5톤윙바디", type:"윙바디", len:6.2, width:2.3, topH:"2.2~2.5", floorH:"1.1~1.2", payload:"6~7톤", vol:26, vehH:"3.3~3.7 m" },
+    { ton:"5톤", name:"5톤플러스윙", alias:"5톤플러스윙", type:"윙바디", len:7.3, width:2.3, topH:"2.2~2.5", floorH:"1.1~1.2", payload:"6~6.5톤", vol:33, vehH:"3.3~3.7 m" },
+    { ton:"5톤", name:"5톤플러스축윙", alias:"5톤플축윙", type:"윙바디", len:7.3, width:2.3, topH:"2.2~2.5", floorH:"1.1~1.2", payload:"10~13톤", vol:33, vehH:"3.3~3.7 m" },
+    { ton:"5톤", name:"5톤냉동탑차", alias:"5톤냉탑", type:"냉동탑", len:6.2, width:2.3, topH:"1.8~2.3", floorH:"1.1~1.2", payload:"6톤", vol:25, vehH:"3.0~3.5 m" },
+
+    { ton:"11톤", name:"11톤카고", alias:"십발이", type:"카고", len:9.1, width:2.35, topH:0, floorH:"1.3~1.4", payload:"14톤", vol:50, vehH:"3.3~3.8 m" },
+    { ton:"11톤", name:"11톤윙바디", alias:"11톤윙", type:"윙바디", len:9.7, width:2.35, topH:2.5, floorH:"1.3~1.4", payload:"13톤", vol:50, vehH:"3.3~3.8 m" },
+
+    { ton:"18톤", name:"18톤카고", alias:"압사발이", type:"카고", len:10.2, width:2.35, topH:0, floorH:"1.3~1.4", payload:"23톤", vol:58, vehH:"3.5~3.8 m" },
+    { ton:"18톤", name:"18톤윙바디", alias:"18톤윙", type:"윙바디", len:10.2, width:2.35, topH:2.5, floorH:"1.3~1.4", payload:"22톤", vol:58, vehH:"3.5~3.8 m" },
+
+    { ton:"22톤", name:"22톤카고", alias:"후3축", type:"카고", len:10.2, width:2.35, topH:0, floorH:"1.3~1.4", payload:"25톤", vol:"50~58", vehH:"3.5~3.8 m" },
+
+    { ton:"25톤", name:"25톤카고", alias:"25톤투쓰리", type:"카고", len:10.2, width:2.35, topH:0, floorH:"1.3~1.4", payload:"27~28톤", vol:58, vehH:"3.5~3.8 m" },
+    { ton:"25톤", name:"25톤윙바디", alias:"25톤윙바디", type:"윙바디", len:10.2, width:2.35, topH:2.5, floorH:"1.3~1.4", payload:"27톤", vol:58, vehH:"3.5~3.8 m" },
+
+    { ton:"24톤", name:"24톤츄레라", alias:"츄레라평카", type:"츄레라", len:12.0, width:2.4, topH:0, floorH:"1.4~1.5", payload:"27톤", vol:60, vehH:"3.6~3.8 m" },
+    { ton:"24톤", name:"24톤로우베드", alias:"로우베드", type:"츄레라", len:"7~12", width:"2.4~2.9", topH:0, floorH:"0.4~0.7", payload:"27톤", vol:50, vehH:"3.6~3.8 m" },
+    { ton:"24톤", name:"24톤슬라이드", alias:"슬라이드", type:"츄레라", len:"12~18", width:"2.4~2.9", topH:0, floorH:"0.4~0.7", payload:"24톤", vol:50, vehH:"3.6~3.8 m" }
+  ];
+
+  /* ===== Elements ===== */
+  const grid = document.getElementById('grid');
+  const tonSel = document.getElementById('tonFilter');
+  const tonWrap = document.querySelector('.select[title="톤수"]');
+  const q = document.getElementById('q');
+  const typeBadges = document.getElementById('typeBadges');
+  const palletToggle = document.getElementById('palletToggle');
+
+  let activeTypes = new Set();
+  let pallet = {w:1100, l:1100};
+  let debounceTimer = null;
+
+  const cell = (k,v)=>`<div class="k">${k}</div><div class="v">${v}</div>`;
+  const fmtM = (n)=> (typeof n==='number')? (n.toFixed(1)+' m') : n;
+
+  function palletCount(item){
+    const parse = (v)=> typeof v==='number'? v : (parseFloat(String(v).split('~')[0]) || 0);
+    const L = Math.max(0, parse(item.len) * 1000);
+    const W = Math.max(0, parse(item.width) * 1000);
+    const a = Math.floor(L/pallet.l) * Math.floor(W/pallet.w);
+    const b = Math.floor(L/pallet.w) * Math.floor(W/pallet.l);
+    return Math.max(a,b);
+  }
+
+  function imgFor(item){
+    const key = `${item.ton}|${item.name}`;
+    return IMAGE_MAP[key] || null;
+  }
+
+  function card(item){
+    const src = imgFor(item);
+    const el = document.createElement('article');
+    el.className = 'card';
+    const palCount = `<span class="nowrap">${palletCount(item)}개</span>`;
+    const palSize = `<span class="nowrap">${pallet.w}×${pallet.l}mm</span>`;
+    const rows = [
+      cell('구분', item.ton),
+      cell('바디타입', item.type),
+      cell('적재함 길이', fmtM(item.len)),
+      cell('적재함 넓이', fmtM(item.width)),
+      cell('탑높이', item.topH===0? '0 m' : (typeof item.topH==='string'? item.topH+' m' : fmtM(item.topH))),
+      cell('바닥높이', typeof item.floorH==='string'? item.floorH+' m' : fmtM(item.floorH)),
+      cell('적재중량', item.payload),
+      cell('적재부피', item.vol+' CBM'),
+      cell('차량총높이', item.vehH),
+      cell('<span class="nowrap">적재팔레트 개수</span>', palCount),
+      cell('<span class="nowrap">팔레트 사이즈</span>', palSize)
+    ].join('');
+    el.innerHTML = `
+      <header>
+        <div class="title">${TYPE_ICONS[item.type]||''} ${item.name}</div>
+        <div class="alias">약칭 ${item.alias}</div>
+      </header>
+      ${src ? `<figure class="thumb"><img src="${src}" alt="${item.name} 사진" loading="lazy" decoding="async" width="320" height="120" /></figure>` : ''}
+      <div class="specs">${rows}</div>
+      <div class="notes">※ 팔레트 수량은 직교 배치, 적재함 직사각형 가정, 개방/휠하우스/리프트 간섭 미반영 기준의 자동 계산값입니다. 실제 적재 가능 수량은 상이할 수 있습니다.</div>
+    `;
+    return el;
+  }
+
+  function updateTonVisual(){ if(!tonSel.value) tonWrap.classList.add('empty'); else tonWrap.classList.remove('empty'); }
+  function matches(item){
+    const tonOk = !tonSel.value || item.ton===tonSel.value;
+    const typeOk = (activeTypes.size===0) || activeTypes.has(item.type);
+    const text = `${item.name} ${item.alias} ${item.type} ${item.ton} 길이${item.len} 넓이${item.width} 탑${item.topH} 바닥${item.floorH} 중량${item.payload} 부피${item.vol} 높이${item.vehH}`.toLowerCase();
+    const qk = (q.value||'').toLowerCase().trim().replace(/\s+/g,' ');
+    const qOk = !qk || qk.split(' ').every(tk=> text.includes(tk));
+    return tonOk && typeOk && qOk;
+  }
+  function renderTypeBadges(){
+    typeBadges.innerHTML = '';
+    BODY_TYPES.forEach(t=>{
+      const b = document.createElement('button');
+      b.className = 'badge'; b.type = 'button'; b.textContent = `${TYPE_ICONS[t]||''} ${t}`;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', ()=>{
+        if(activeTypes.has(t)) activeTypes.delete(t); else activeTypes.add(t);
+        b.classList.toggle('active');
+        b.setAttribute('aria-pressed', String(b.classList.contains('active')));
+        render();
+      });
+      typeBadges.appendChild(b);
+    });
+  }
+  function render(){
+    const list = TRUCK_SPECS.filter(matches);
+    grid.innerHTML = '';
+    if(list.length===0){
+      grid.innerHTML = '<div class="panel no-results">검색 결과가 없습니다. 필터를 초기화해 보세요.</div>';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    list.forEach(item=> frag.appendChild(card(item)));
+    grid.appendChild(frag);
+  }
+
+  /* ===== Events ===== */
+  tonSel.addEventListener('change', ()=>{ updateTonVisual(); render(); }, {passive:true});
+  q.addEventListener('input', ()=>{
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(render, 140);
+  });
+  palletToggle.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      pallet = {w:parseInt(btn.dataset.w||btn.getAttribute('data-w'),10), l:parseInt(btn.dataset.l||btn.getAttribute('data-l'),10)};
+      palletToggle.querySelectorAll('button').forEach(b=>{
+        b.classList.remove('active'); b.setAttribute('aria-selected','false');
+      });
+      btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+      render();
+    }, {passive:true});
+  });
+
+  /* ===== Init ===== */
+  renderTypeBadges();
+  updateTonVisual();
+  render();
+})();
+</script>
+</body>
+</html>
